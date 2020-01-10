@@ -1,0 +1,23 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      java: openjdk8  
+  pre_build:
+    commands:
+    - apt-get update
+    - apt-get -y install libaio1
+  build:
+    commands:
+    - mvn clean install
+    - docker login --username=ravisankar -p=Qwert123@
+    - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+    - docker build --tag ravisankar/currencyexchange:${TAG} .
+    - docker push ravisankar/currencyexchange:${TAG}
+    - DOCKER_IMAGE_URI="${DOCKER_REPOSITORY_URI}:${TAG}"
+  post_build:
+    commands:
+    - printf 'uri=%s' $DOCKER_IMAGE_URI > dockerimage.properties
+artifacts:
+  files:
+    - '**/*'

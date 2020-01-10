@@ -1,0 +1,12 @@
+version: 0.0
+os: linux
+files:
+  - source: /dockerimage.properties
+    destination: /
+hooks:
+  BeforeInstall:
+    - location: dockerkill.sh
+      timeout: 300  
+  ApplicationStart:
+    - location: dockerrun.sh
+      timeout: 300

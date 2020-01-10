@@ -1,0 +1,84 @@
+pipeline {
+
+  environment {
+    PROJECT = "in28minutes-2"
+    CLUSTER = "jenkins-cd"
+    CLUSTER_ZONE = "us-east1-d"
+    JENKINS_CRED = "${PROJECT}"
+  }
+
+  agent {
+    kubernetes {
+      label 'currency-exchange-app'
+      defaultContainer 'jnlp'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+labels:
+  component: ci
+spec:
+  # Use service account that can deploy to all namespaces
+  serviceAccountName: cd-jenkins
+  containers:
+  - name: mvn
+    image: gcr.io/cloud-builders/mvn
+    command:
+    - cat
+    tty: true
+  - name: gcloud
+    image: gcr.io/cloud-builders/gcloud
+    command:
+    - cat
+    tty: true
+  - name: kubectl
+    image: gcr.io/cloud-builders/kubectl
+    command:
+    - cat
+    tty: true
+  - name: docker
+    image: docker:latest
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-sock
+  volumes:
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock
+    - name: m2
+      persistentVolumeClaim:
+        claimName: m2
+"""
+}
+  }
+  stages {
+    stage('build') {
+      steps {
+        container('mvn') {
+          sh("mvn clean package")
+          step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+        }
+      }
+    }
+    stage('build image') {
+      steps {
+        container('docker') {
+          sh("docker build -t currency-exchange-devops:latest  -t currency-exchange-devops --pull --no-cache .")
+        }
+      }
+    }
+    stage('Deploy Dev') {
+      steps {
+        container('kubectl') {
+          sh("kubectl get ns ${env.BRANCH_NAME} || kubectl create ns ${env.BRANCH_NAME}")
+          step([$class: 'KubernetesEngineBuilder',namespace: "${env.BRANCH_NAME}", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/services', credentialsId: env.JENKINS_CRED, verifyDeployments: false])
+          step([$class: 'KubernetesEngineBuilder',namespace: "${env.BRANCH_NAME}", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/dev', credentialsId: env.JENKINS_CRED, verifyDeployments: true])
+          echo 'To access your environment run `kubectl proxy`'
+        }
+      }
+    }
+  }
+}
