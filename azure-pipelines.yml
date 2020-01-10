@@ -21,7 +21,15 @@ steps:
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package -Dmaven.test.skip=true'
 - task: Docker@2
-  displayName: Build and Push
+  displayName: Build
+  inputs:
+    containerRegistry: 'DockerHub'
+    repository: 'ravisankar/currency-exchange-devops'
+    command: 'build'
+    Dockerfile: '**/Dockerfile'
+    tags: 'azurelatest'
+- task: Docker@2
+  displayName: Push
   inputs:
     containerRegistry: 'DockerHub'
     repository: 'ravisankar/currency-exchange-devops'
