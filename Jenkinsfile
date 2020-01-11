@@ -51,10 +51,10 @@ node {
     }
 
     stage("Integration Test") {
-        docker.image('currency-exchange-devops:latest').withRun('-d -p 8080:8080 --name ceintegrationtest') {
+        docker.image('currency-exchange-devops:latest').withRun('-d -p 8082:8080 --name ceintegrationtest') {
             sh "sleep 15s"
         }
-        sh "curl http://localhost:8080/from/EUR/to/INR"
+        sh "curl http://localhost:8082/from/EUR/to/INR"
 
     }
 
