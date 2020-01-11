@@ -58,6 +58,27 @@ spec:
     stage('build') {
       steps {
         container('mvn') {
+          sh("mvn clean package")
+          step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+        }
+      }
+    }
+    stage('build image') {
+      steps {
+        container('docker') {
+          sh("docker build -t currency-exchange-devops:latest  -t currency-exchange-devops --pull --no-cache .")
+        }
+      }
+    }
+    stage('Deploy Dev') {
+      steps {
+        container('kubectl') {
+          sh("kubectl get ns master || kubectl create ns master")
+          step([$class: 'KubernetesEngineBuilder',namespace: "master", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/services', credentialsId: env.JENKINS_CRED, verifyDeployments: false])
+          step([$class: 'KubernetesEngineBuilder',namespace: "master", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/dev', credentialsId: env.JENKINS_CRED, verifyDeployments: true])
+          echo 'To access your environment run `kubectl proxy`'
+          sh("sleep 50s")
+
           script {
                     def browsers = ['chrome', 'firefox']
                     for (int i = 0; i < browsers.size(); ++i) {
