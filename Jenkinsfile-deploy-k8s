@@ -78,22 +78,9 @@ spec:
           step([$class: 'KubernetesEngineBuilder',namespace: "master", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/dev', credentialsId: env.JENKINS_CRED, verifyDeployments: true])
           echo 'To access your environment run `kubectl proxy`'
           sh("sleep 50s")
+          gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
         }
       }
     }
-    
-    stage ('Check Deployment') {
-      steps {
-                container('mvn') {
-
-      def IP = sh(
-      script: "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master",
-      returnStdout: true,
-      )
-      }
-      }
-    }
-
-
   }
 }
