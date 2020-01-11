@@ -1,4 +1,4 @@
-def gitCommit
+def loadBalancerIP
 pipeline {
 
   environment {
@@ -56,13 +56,41 @@ spec:
 }
   }
   stages {
+
     stage('build') {
+      steps {
+        container('mvn') {
+          sh("mvn clean package")
+          step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+        }
+      }
+    }
+    stage('build image') {
+      steps {
+        container('docker') {
+          sh("docker build -t currency-exchange-devops:latest  -t currency-exchange-devops --pull --no-cache .")
+        }
+      }
+    }
+    stage('Deploy Dev') {
+      steps {
+        container('kubectl') {
+          sh("kubectl get ns master || kubectl create ns master")
+          step([$class: 'KubernetesEngineBuilder',namespace: "master", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/services', credentialsId: env.JENKINS_CRED, verifyDeployments: false])
+          step([$class: 'KubernetesEngineBuilder',namespace: "master", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/dev', credentialsId: env.JENKINS_CRED, verifyDeployments: true])
+          echo 'To access your environment run `kubectl proxy`'
+          sh("sleep 50s")
+        }
+      }
+    }
+
+    stage('verify deployment') {
       steps {
         container('kubectl') {
           script {
-            gitCommit = sh(returnStdout: true, script: "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master").trim()
-            sh "echo ${gitCommit}"
-            sh "curl http://${gitCommit}:8080/currency-exchange/from/EUR/to/INR"
+            loadBalancerIP = sh(returnStdout: true, script: "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master").trim()
+            sh "echo ${loadBalancerIP}"
+            sh "curl http://${loadBalancerIP}:8080/currency-exchange/from/EUR/to/INR"
                 }
         }
       }
@@ -71,8 +99,7 @@ spec:
     stage('run cucumber test') {
       steps {
         container('mvn') {
-          sh "curl http://${gitCommit}:8080/currency-exchange/from/EUR/to/INR"
-          sh("mvn test")
+          sh "mvn failsafe:integration-test failsafe:verify -Dserverhost=${loadBalancerIP}"
         }
       }
     }

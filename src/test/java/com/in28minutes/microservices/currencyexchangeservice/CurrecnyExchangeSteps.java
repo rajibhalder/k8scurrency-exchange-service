@@ -18,11 +18,12 @@ public class CurrecnyExchangeSteps {
 
     @Given("^conversion rate for (.*) to (.*)$")
     public void conversion_rate_for_fromcurrency_to_tocurrency(String from, String to) throws Exception {
+        String serverHost = System.getProperty("serverhost");
         RestAssured.requestSpecification = new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
                 .build();
-        output = when().request(Method.GET,"/currency-exchange/from/"+from+"/to/"+to).then().statusCode(200).extract().path("conversionMultiple");
+        output = when().request(Method.GET,"http://"+serverHost+":8080/currency-exchange/from/"+from+"/to/"+to).then().statusCode(200).extract().path("conversionMultiple");
     }
 
     @When("^the system is asked to provide the conversion rate$")
