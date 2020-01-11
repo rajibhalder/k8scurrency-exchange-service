@@ -78,13 +78,21 @@ spec:
           step([$class: 'KubernetesEngineBuilder',namespace: "master", projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/dev', credentialsId: env.JENKINS_CRED, verifyDeployments: true])
           echo 'To access your environment run `kubectl proxy`'
           sh("sleep 50s")
-          script {
-            def IP = "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master"
-            echo "IP Found "${IP}
-            curl "https://${IP}:8080/currency-exchange/from/EUR/to/INR"
-          }
         }
       }
     }
+def IP
+    stage ('Check Deployment') {
+  IP = sh(
+    script: "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master",
+    returnStdout: true,
+  )
+}
+
+    stage ('Curl') {
+      sh("echo IP ${IP}")
+  sh("https://${IP}:8080/currency-exchange/from/EUR/to/INR")
+}
+
   }
 }
