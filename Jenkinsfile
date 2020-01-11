@@ -56,14 +56,10 @@ node {
 
     stage("Integration Test") {
         docker.image('currency-exchange-devops:latest').withRun('-d -p 8080:8080 -name ceintegrationtest') {
-
+            sh "sleep 15s"
         }
         sh "mvn failsafe:integration-test failsafe:verify"
 
-    }
-
-    stage('Run App'){
-        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
 
 }

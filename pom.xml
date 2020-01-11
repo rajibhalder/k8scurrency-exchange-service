@@ -105,6 +105,11 @@
 		</dependency>
 <!-- Add ons -->
 		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured-all</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>io.cucumber</groupId>
 			<artifactId>cucumber-java</artifactId>
 			<version>2.3.1</version>
@@ -144,7 +149,12 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>4.1.2</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -178,7 +188,7 @@
 					<!-- to prevent runtime errors, OpenJPA tests are ignored -->
 					<argLine>${jacoco.utAgentConfig}</argLine>
 					<excludes>
-						<exclude>**/*ApplicationTests.java</exclude>
+						<!--<exclude>**/*ApplicationTests.java</exclude>-->
 						<exclude>**/*IntegrationTestCase.java</exclude>
 					</excludes>
 					<properties>
@@ -199,7 +209,7 @@
 					<!-- JaCoCo must be enabled on target app container -->
 					<!--<argLine>${jacoco.itAgentConfig}</argLine>-->
 					<includes>
-						<include>**/*ApplicationTests.java</include>
+						<!--<include>**/*ApplicationTests.java</include>-->
 						<include>**/*IntegrationTestCase.java</include>
 					</includes>
 				</configuration>
