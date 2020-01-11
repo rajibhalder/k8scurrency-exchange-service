@@ -79,7 +79,8 @@ spec:
           echo 'To access your environment run `kubectl proxy`'
           sh("sleep 10s")
           script {
-            def ip = "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master"
+            def IP = "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master"
+            echo "IP Found "${IP}
             curl "https://${IP}:8080/currency-exchange/from/EUR/to/INR"
           }
         }
