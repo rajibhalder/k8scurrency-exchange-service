@@ -61,7 +61,7 @@ spec:
           script {
             gitCommit = sh(returnStdout: true, script: "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master").trim()
             sh "echo ${gitCommit}"
-            sh "curl https://${gitCommit}:8080/currency-exchange/from/EUR/to/INR"
+            sh "curl http://${gitCommit}:8080/currency-exchange/from/EUR/to/INR"
                 }
         }
       }
