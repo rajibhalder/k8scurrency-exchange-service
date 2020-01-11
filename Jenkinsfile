@@ -23,10 +23,6 @@ node {
         sh "mvn test"
     }
 
-    stage('Integration Test'){
-        sh "mvn failsafe:integration-test failsafe:verify"
-    }
-
     stage('Sonar'){
         try {
             sh "mvn sonar:sonar"
