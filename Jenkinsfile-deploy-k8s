@@ -59,10 +59,8 @@ spec:
       steps {
         container('mvn') {
           script {
-                    def browsers = ['chrome', 'firefox']
-                    for (int i = 0; i < browsers.size(); ++i) {
-                        echo "Testing the ${browsers[i]} browser"
-                    }
+            gitCommit = sh(returnStdout: true, script: 'kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master').trim()
+            sh "echo ${gitCommit}"
                 }
         }
       }
