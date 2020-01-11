@@ -80,7 +80,7 @@ spec:
           sh("sleep 10s")
           script {
             def ip = "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master"
-            curl https://${IP}:8080/currency-exchange/from/EUR/to/INR
+            curl "https://${IP}:8080/currency-exchange/from/EUR/to/INR"
           }
         }
       }
