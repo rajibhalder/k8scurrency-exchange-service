@@ -57,7 +57,7 @@ spec:
   stages {
     stage('build') {
       steps {
-        container('mvn') {
+        container('kubectl') {
           script {
             gitCommit = sh(returnStdout: true, script: "kubectl get service/currency-exchange -o jsonpath='{.status.loadBalancer.ingress[0].ip}' --namespace=master").trim()
             sh "echo ${gitCommit}"
