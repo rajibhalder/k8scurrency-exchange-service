@@ -54,7 +54,7 @@ node {
         docker.image('currency-exchange-devops:latest').withRun('-d -p 8080:8080 --name ceintegrationtest') {
             sh "sleep 15s"
         }
-        sh "mvn failsafe:integration-test failsafe:verify"
+        sh "curl http://localhost:8080/from/EUR/to/INR"
 
     }
 
