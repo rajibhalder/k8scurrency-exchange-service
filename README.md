@@ -22,6 +22,10 @@ docker run -d --name sonarqube -p 9000:9000 sonarqube
 ### Cucumber
 1. https://youtu.be/uZ1Zvvty9jI
 
+### Rerecorded Jenkins, Cucumber & Kubernetes Jenkins
+https://youtu.be/CBAyjFo7LyA
+
+
 ### Azure devops
 ```
 brew update && brew install azure-cli
@@ -32,6 +36,54 @@ az aks get-credentials --resource-group kubetutrg --name kubetutcluster
 ```
 1. https://youtu.be/XfViBcEUXb8
 2. https://youtu.be/Ufvp0fAsVkk
+
+### Azure devops AWS Deployment
+1. https://youtu.be/U6rkfZsO9XI
+script content here
+```
+# You can write your script inline here
+sudo pip install setuptools
+sudo pip install wheel
+sudo pip install awscli --upgrade
+
+
+curl -o kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.13.8/2019-08-14/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+kubectl version --short --client
+
+echo '*********************'
+
+curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/linux/amd64/aws-iam-authenticator
+chmod +x ./aws-iam-authenticator
+mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+aws-iam-authenticator help
+
+echo '*********************'
+
+aws eks --region eu-west-1 update-kubeconfig --name testdevops3
+
+
+echo '*********************'
+aws sts get-caller-identity
+
+echo '*********************'
+ls
+
+cat _awstutorials.k8scurrency-exchange-service/cicdwithdockerandazuredevops/k8s/dev/currency-exchange-application-deployment.yaml
+
+kubectl apply -f _awstutorials.k8scurrency-exchange-service/cicdwithdockerandazuredevops/k8s/dev/currency-exchange-application-deployment.yaml
+
+kubectl apply -f _awstutorials.k8scurrency-exchange-service/cicdwithdockerandazuredevops/k8s/services/currency-exchange-application-service.yaml
+
+kubectl get svc
+
+echo 'Deployment completed'
+````
+### DevOps maturity assessment
+https://youtu.be/S4mJVWnclDE
 
 ### Jenkins on Google cloud Kubernetes
 1. https://youtu.be/Q5jk5CBGFIQ
@@ -76,6 +128,9 @@ gcloud container clusters get-credentials jenkins-cd --zone=us-east1-d
 
 kubectl create clusterrolebinding jenkins-deploy \
     --clusterrole=cluster-admin --serviceaccount=default:cd-jenkins
+```
+This step has to be executed from the local machine (so you need kubectl installed) as this persistant volume claim is something needed for pipeline
+```
 kubectl apply -f jenkins-volume-persistentvolumeclaim.yaml
 ```
 
